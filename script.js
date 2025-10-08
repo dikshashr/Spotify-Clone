@@ -3,7 +3,7 @@ console.log("hello")
 
 
 async function getSongs() {
-    let a = await fetch("http://127.0.0.1:5500/spotify%20clone/spotify-songs/")
+    let a = await fetch("http://127.0.0.1:5500/spotify-clone/spotify-songs/git")
     let response = await a.text()
     //console.log(response)
     let div = document.createElement("div")
