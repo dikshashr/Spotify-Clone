@@ -1,11 +1,11 @@
+
 console.log("hello")
-
-
+let currentsong = new Audio();
 
 async function getSongs() {
-    let a = await fetch("http://127.0.0.1:5500/spotify-clone/spotify-songs/git")
+    let a = await fetch("http://127.0.0.1:5500/spotify-clone/spotify-songs/")
     let response = await a.text()
-    //console.log(response)
+    console.log(response)
     let div = document.createElement("div")
     div.innerHTML = response;
     let as = div.getElementsByTagName("a")
@@ -14,30 +14,34 @@ async function getSongs() {
         const element = as[index];
         if (element.href.endsWith(".mp3")) {
             songs.push(element.href.split("/spotify-songs/")[1]);
-            //(decodeURIComponent(element.split("/spotify-songs/")[1]));
-            //(element.href.split("/spotify-songs/")[1])
+        
         }
     }
     return songs
 }
 
-const playMusic = (track) =>{
-    let audio = new Audio("/songs/" + track)
-    audio.play()
+const playMusic = (track) => {
+    // Full absolute URL to the MP3, matching your fetch path
+    //let audio = new Audio("http://127.0.0.1:5500/spotify-clone/spotify-songs/" + track)
+    currentsong.src = "http://127.0.0.1:5500/spotify-clone/spotify-songs/" + track
+    currentsong.play()
 }
+
 
 async function main() {
 
-    let currentSong;
 
     let songs = await getSongs()
 
     let songUl = document.querySelector(".songlist").getElementsByTagName("ul")[0]
 
-    songs.forEach(songs => {
-        songUl.innerHTML = songUl.innerHTML + `<li><img src="music.svg" class="invert" alt="">
+    // Renamed loop variable from "songs" to "song" to avoid shadowing the array.
+    // Added data-song attribute to store the original filename (for playing).
+    // Display name is cleaned separately (replacements only affect what's shown, not the data).
+    songs.forEach(song => {
+        songUl.innerHTML = songUl.innerHTML + `<li data-song="${song}"><img src="music.svg" class="invert" alt="">
                             <div class="info">
-                                <div>${songs.replaceAll("%20", " ").replaceAll("Sony Animation", " ").replaceAll("Official", " ").replaceAll("KPop Demon Hunters", " ")}</div>
+                                <div>${song.replaceAll("%20", " ").replaceAll("Sony Animation", " ").replaceAll("Official", " ").replaceAll("KPop Demon Hunters", " ")}</div>
                                 <div>Song Artist</div>
                             </div>
                             <div class="playnow">
@@ -45,42 +49,28 @@ async function main() {
                                 <img class="invert" src="play.svg" alt="">
                             </div>
                             </li>`;
-
-
-
-    }
-
-    );
-
-    //Attach an event listener to each song
-   // Array.from(document.querySelector(".songlist").getElementsByTagName("li")).forEach(e => {
-     //   e.addEventListener("click", element=>{
-       // console.log(e.querySelector(".info").firstElementChild.innerHTML)
-        //playMusic(e.querySelector(".info").firstElementChild.innerHTML.trim())
-        //})
-    //})
-
-    Array.from(document.querySelector(".songlist").getElementsByTagName("li")).forEach(e => {
-    e.addEventListener("click", element => {
-        let playing = e.getAttribute("songs");
-        playMusic(playing);
     });
-});
 
+    // Updated event listener to read the song from the data-song attribute.
+    // Now it correctly gets the filename and passes it to playMusic.
+    Array.from(document.querySelector(".songlist").getElementsByTagName("li")).forEach(e => {
+        e.addEventListener("click", element => {
+            let playing = e.dataset.song;
+            playMusic(playing);
+        });
+    });
 
-
-
-
-    //for(const song of songs){
-    // songUl.innerHTML = songUl.innerHTML + `<li> ${songs.replace("20%" ," ")} </li>`;
-    //}
-
-    //var audio = new Audio(songs[0]);
-    //audio.play();
-
-    //audio.addEventListener("loadeddata", () => {
-      //  console.log(audio.duration, audio.currentSrc, audio.currentTime)
-    //});
+    // Attach an event listner to play, next adn previous
+    play.addEventListener("click", ()=>{
+        if(currentSong.paused){
+            currentsong.play()
+            play.src = "pause.svg"
+        }
+        else{
+            currentsong.pause()
+            play.src = "play.svg"
+        }
+    })
 }
 
 main()
